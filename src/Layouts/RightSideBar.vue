@@ -88,7 +88,7 @@
             <div v-else-if="activeTool === 'cropTool'">
                 <v-card elevation="0">
                     <v-card-title>
-                        <div class="text-h5" style="font-family: 'Poppins', sans-serif; font-weight:500; text-align: center;">Crop Tool</div>
+                        <div class="text-h5" style="font-family: 'Poppins', sans-serif; font-weight:500; text-align: center;">Area of Interest</div>
                     </v-card-title>
                     <v-divider :thickness="2" color="black"></v-divider>
                     <v-card-text style="margin-bottom: 30px; margin-top: 10px;">
