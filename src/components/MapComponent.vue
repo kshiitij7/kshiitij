@@ -1,14 +1,15 @@
 <template>
-<div ref="map" style=" width: 100%;height: 100%;"></div>
-</template>
+<div ref="map" style=" width: 100%;height: 100%;position: relative;">
+    <div id="mouse-pos" style="position: absolute; bottom:6.3%; left: 6.8%; background-color: black;color: white; padding: 0.1em 0.1em; border-radius: 4px; font-family: 'Poppins', sans-serif ; font-size: calc(4.5px + 0.45vw); z-index: 1000; pointer-events: none; max-width: 30%; text-align: center;"></div>
+</div>
 
-  
+
+
+</template>
   
 <script>
 import 'ol/ol.css';
-import {
-    Map
-} from 'ol';
+import {Map} from 'ol';
 import BingMaps from 'ol/source/BingMaps';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -22,30 +23,24 @@ import {Draw} from 'ol/interaction';
 import {Vector as VectorSource} from 'ol/source';
 import { Vector as VectorLayer} from 'ol/layer';
 import {ScaleLine} from 'ol/control.js';
-import { getLength, getArea} from 'ol/sphere';
+import {getLength, getArea} from 'ol/sphere';
 import Overlay from 'ol/Overlay.js';
 import eventBus from '@/event-bus';
 import { createBox } from 'ol/interaction/Draw';
+import MousePosition from 'ol/control/MousePosition.js';
+import {createStringXY} from 'ol/coordinate.js';
+import axios from 'axios'; // Import axios for making HTTP requests
+
+
+
 
 export default {
     name: 'MapComponent',
     props: {
-        center: {
-            type: Array,
-            required: true,
-        },
-        zoom: {
-            type: Number,
-            required: true,
-        },
-        minZoom: {
-            type: Number,
-            required: true,
-        },
-        dashLayers: {
-            type: Array,
-            required: true,
-        },
+        center: {type: Array,required: true,},
+        zoom: {type: Number,required: true,},
+        minZoom: {type: Number, required: true,},
+        dashLayers: {type: Array,required: true,},
     },
     mounted() {
         const osm = new TileLayer({
@@ -57,9 +52,7 @@ export default {
         const bing = new TileLayer({
             title: 'Bing',
             type: 'overlay',
-            source: new BingMaps({
-                key: "ArIdKOW0eb8TRcLZdt0l2cG8kHA_uW92yIvx1aFzsQ1xHxpnVRMGmO0N0neY8P90",
-                imagerySet: 'AerialWithLabels',
+            source: new BingMaps({ key: "ArIdKOW0eb8TRcLZdt0l2cG8kHA_uW92yIvx1aFzsQ1xHxpnVRMGmO0N0neY8P90", imagerySet: 'AerialWithLabels',
             }),
             visible: true,
         });
@@ -67,13 +60,7 @@ export default {
             title: 'Bhuvan',
             type: 'overlay',
             source: new TileWMS({
-                params: {
-                    FORMAT: "image/jpeg",
-                    VERSION: "1.1.1",
-                    tiled: true,
-                    LAYERS: "bhuvan_imagery",
-                    exceptions: "application/vnd.ogc.se_inimage",
-                },
+                params: {FORMAT: "image/jpeg", VERSION: "1.1.1", tiled: true, LAYERS: "bhuvan_imagery", exceptions: "application/vnd.ogc.se_inimage",},
                 url: "https://bhuvan-ras2.nrsc.gov.in/tilecache/tilecache.py",
             }),
             visible: false,
@@ -83,69 +70,75 @@ export default {
             type: 'overlay',
             source: new TileWMS({
                 url: 'http://192.168.17.37:8080/geoserver/Geo-Ganga/wms?',
-                params: {
-                    'LAYERS': 'india_country_boundary_4326',
-                    'TILED': true,
-                    'VERSION': '1.1.1',
-                },
+                params: { 'LAYERS': 'india_country_boundary_4326', 'TILED': true, 'VERSION': '1.1.1', },
                 serverType: 'geoserver',
                 tileGrid: new TileWMS().getTileGridForProjection(getProjection('EPSG:4326')),
             }),
             visible: true,
         });
+        const StatesBoundary = new TileLayer({
+            title: 'State Boundary',
+            type: 'overlay',
+            source: new TileWMS({
+                url: 'http://192.168.17.37:8080/geoserver/Geo-Ganga/wms?',
+                params: {'LAYERS': 'states_boundary_ganga','TILED': true,'VERSION': '1.1.1', },
+                serverType: 'geoserver',
+                tileGrid: new TileWMS().getTileGridForProjection(getProjection('EPSG:4326')),
+            }),
+            visible: false,
+        });
+        const DistrictsBoundary = new TileLayer({
+            title: 'District Boundary',
+            type: 'overlay',
+            source: new TileWMS({
+                url: 'http://192.168.17.37:8080/geoserver/Geo-Ganga/wms?',
+                params: {'LAYERS': 'district_touch','TILED': true,'VERSION': '1.1.1',},
+                serverType: 'geoserver',
+                tileGrid: new TileWMS().getTileGridForProjection(getProjection('EPSG:4326')),
+            }),
+            visible: false,
+        });
+        const SubDistrictsBoundary = new TileLayer({
+            title: 'Sub-District Boundary',
+            type: 'overlay',
+            source: new TileWMS({
+                url: 'http://192.168.17.37:8080/geoserver/Geo-Ganga/wms?',
+                params: {'LAYERS': 'subdistrict_touch','TILED': true,'VERSION': '1.1.1',},
+                serverType: 'geoserver',
+                tileGrid: new TileWMS().getTileGridForProjection(getProjection('EPSG:4326')),
+            }),
+            visible: false,
+        });
+   
 
-        const baseMaps = [bhuvan, osm, bing, indiaCountryBoundary,  ];
-  
-
+        const baseMaps = [bhuvan, osm, bing, SubDistrictsBoundary,DistrictsBoundary,StatesBoundary,indiaCountryBoundary,  ];
    
         const map = new Map({
             target: this.$refs.map,
             layers: baseMaps, 
-            view: new View({
-                projection: 'EPSG:4326',
-                center: this.center,
-                zoom: this.zoom,
-                minZoom: this.minZoom,
-            }),
+            view: new View({projection: 'EPSG:4326',center: this.center,zoom: this.zoom,minZoom: this.minZoom, }),
         });
+           
 
-        const scaleControl = new ScaleLine({
-            units: 'metric',
-            bar: true,
-            steps: 5,
-            text: true,
-            minWidth: 200,
-            dpi: 96,
-            target: 'scale-line',
-        });
+        const mousePositionControl = new MousePosition({projection: 'EPSG:4326',coordinateFormat: createStringXY(4),target: document.getElementById('mouse-pos'), className: '',});
+        map.addControl(mousePositionControl);
+
+        const scaleControl = new ScaleLine({units: 'metric',bar: true,steps: 5,text: true,minWidth: 200,dpi: 96,target: 'scale-line',});
         map.addControl(scaleControl);
 
-        const layerSwitcher = new LayerSwitcher({
-            activationMode: 'click',
-            startActive: false,
-            tipLabel: 'Layers',
-            collapseLabel: '\u00BB',
-            expandLabel: '\u00AB',
-            showRoot: false,
-        });
+        const layerSwitcher = new LayerSwitcher({activationMode:'click',startActive:false,tipLabel:'Layers',collapseLabel:'\u00BB',expandLabel:'\u00AB',showRoot: false,});
         map.addControl(layerSwitcher);
 
-        const fullScreen = new FullScreen({
-            tipLabel: 'Fullscreen',
-        });
+        const fullScreen = new FullScreen({tipLabel: 'Fullscreen', });
         map.addControl(fullScreen);
 
         // Measurement Layer
         this.measurementSource = new VectorSource();
         this.measurementLayer = new VectorLayer({
             source: this.measurementSource,
-            style: {
-                'fill-color': 'rgba(255, 255, 255, 0.2)',
-                'stroke-color': 'rgba(255, 255, 255, 0.8)',
-                'stroke-lineDash': [10, 10],
-                'stroke-width': 3,
-            },
-        });map.addLayer(this.measurementLayer);
+            style: {'fill-color': 'rgba(255, 255, 255, 0.2)', 'stroke-color': 'rgba(255, 255, 255, 0.8)','stroke-lineDash': [10, 10],'stroke-width': 3, },
+        });
+        map.addLayer(this.measurementLayer);
 
           // Crop Layer
           this.cropSource = new VectorSource();
@@ -159,14 +152,15 @@ export default {
         this.cropInteraction = null;
 
         this.measurementOverlays = [];
-        // Listen to events from BasinPage to activate and set measurement mode
+        // Listen to events from RightSideBar
         eventBus.on('set-measurement-mode', this.setMeasurementMode);
         eventBus.on('clear-measurements', this.deactivateMeasurement);
         eventBus.on('clear-measurements', this.clearMeasurements);
         eventBus.on('cropToolToggled', this.toggleCropTool);
-        
+        eventBus.on('search-query', this.handleSearchQuery);
 
     },
+    
 
     methods: {
         setMeasurementMode(mode) {
@@ -264,7 +258,6 @@ export default {
             }
         },
         activateCropTool() {
-            // Create Draw interaction for cropping (Rectangle)
             this.cropInteraction = new Draw({
                 source: this.cropSource,
                 type: 'Circle',
@@ -283,17 +276,38 @@ export default {
             if (this.cropInteraction) {
                 this.cropSource.clear();
                 this.map.removeInteraction(this.cropInteraction);
-
-                this.map.getView().setZoom(this.zoom); // Reset to original zoom
-                this.map.getView().setCenter(this.center);
+                // this.map.getView().setZoom(this.zoom); // Reset to original zoom
+                // this.map.getView().setCenter(this.center);
 
             }
         },
+        handleSearchQuery(query) {
+            console.log('Search query received:', query);
+            this.searchPlace(query);
+        },
+        async searchPlace(query) {
+            try {
+                const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+                    params: {q: query,format: 'json',addressdetails: 1,limit: 1, }
+                });
+                const results = response.data;
+                if (results.length > 0) {
+                    const place = results[0];
+                    const lat = parseFloat(place.lat);
+                    const lon = parseFloat(place.lon);
+                    this.map.getView().setCenter([lon, lat]);
+                    this.map.getView().setZoom(15); 
+                } else {
+                    console.log('Place not found!');
+                }
+            } catch (error) {
+                console.error('Search failed', error);
+            }
+        },
     },
+    beforeUnmount() {
+    // Unsubscribe from the event when the component is destroyed
+    eventBus.off('search-query', this.handleSearchQuery);  // Using mitt's `off`
+  }
 };
 </script>
-  
-  
-<style scoped>
-  
-  </style>

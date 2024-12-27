@@ -52,7 +52,7 @@
                     </v-card-title>
                     <v-divider :thickness="2" color="black"></v-divider>
                     <v-card-text>
-                        <v-text-field v-model="searchQuery" @searchInput="onSearchInput" style="margin-top: 20px; margin-bottom: 30px;" clearable placeholder="Type to Search ..." outlined></v-text-field>
+                        <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" @keydown.enter="onSearchInput" style="margin-top: 20px; margin-bottom: 30px;" placeholder="Type to Search ..." outlined></v-text-field>
                     </v-card-text>
                 </v-card>
                 <v-divider :thickness="3"></v-divider>
@@ -135,6 +135,9 @@ export default {
                 this.activeTool = tool;
                 this.isRightDrawerOpen = true;
             }
+        },
+        onSearchInput() {
+        eventBus.emit('search-query', this.searchQuery);
         },
         activateMeasurement(type) {
             this.activeMeasurement = type;
