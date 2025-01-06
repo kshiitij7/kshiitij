@@ -4,9 +4,11 @@
             <v-img :src="logo" class="logo-image"></v-img>
             <v-img :src="nmcg" class="nmcg-image"></v-img>
         </div>
-    
-        <v-footer color="black" height="100"></v-footer>
+        <v-app-bar color="black" height="80" location="bottom">
+            <h5 style="font-size: 15px; text-align: justify; font-family: 'Poppins', sans-serif; font-weight: 300;">Copyright © 2024 All Rights Reserved</h5>
+        </v-app-bar>
     </v-main>
+
     </template> 
       
     <script>
