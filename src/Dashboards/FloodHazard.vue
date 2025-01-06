@@ -1,18 +1,11 @@
 <template>
 <div class="FloodHazard">
     <v-main>
+        <LeftSideBar />
         <div style="height: 86vh;">
-            <MapComponent :dashLayers= "mapLayers" :center="[82.5644, 25.1441]" :zoom="10" :minZoom="5.5"/>
+            <MapComponent :dashLayers="mapLayers" :center="[82.5644, 25.1441]" :zoom="10" :minZoom="5.5" />
         </div>
-
-        <div>
-            <RightSideBar />
-        </div>
-
-        <div ref="LeftRef">
-          <LeftSideBar />
-        </div>
-
+        <RightSideBar />
     </v-main>
 </div>
 </template>
@@ -29,9 +22,9 @@ export default {
         RightSideBar,
         LeftSideBar,
     },
-    data(){
+    data() {
         return {
-            mapLayers : [],
+            mapLayers: [],
         }
     },
 

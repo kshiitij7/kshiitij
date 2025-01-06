@@ -1,17 +1,11 @@
 <template>
 <div class="WaterQuality">
     <v-main>
+        <LeftSideBar />
         <div style="height: 86vh;">
             <MapComponent :dashLayers= "mapLayers" :center="[80.3319, 26.4499]" :zoom="10" :minZoom="5.5"/>
         </div>
-
-        <div>
-            <RightSideBar />
-        </div>
-
-        <div ref="LeftRef">
-          <LeftSideBar />
-        </div>
+            <RightSideBar />     
     </v-main>
 </div>
 </template>

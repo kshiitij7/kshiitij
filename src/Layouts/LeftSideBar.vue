@@ -1,13 +1,13 @@
 <template>
     <div class="LeftSideBar">
-        <v-main>
+        <v-main style="--v-layout-top: 0px;">
             <v-navigation-drawer rail color="black" >
             <v-list>
                <!-- Layers Button -->
                <v-list-item @click="openLeftDrawer('layers')" class="cursor-pointer">
                     <v-tooltip location="left">
                         <template v-slot:activator="{ props: tooltip }">
-                            <v-icon v-bind="tooltip">mdi-layers</v-icon>
+                            <v-icon v-bind="tooltip">mdi-layers-triple</v-icon>
                         </template>
                         <span>Layers</span>
                     </v-tooltip>

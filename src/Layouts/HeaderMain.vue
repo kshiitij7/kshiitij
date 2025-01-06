@@ -1,20 +1,20 @@
 <template>
-    <v-app-bar app color="#022a38" class="home-page-header" height="80" elevation="1">
-        <v-row class="fill-height" align="center" justify="space-between">
-            <v-img :src="isro" contain height="65px" max-width="120" class="ml-0" />
-            <v-img :src="iirslogo" contain height="65px" max-width="80" class="ml-0" />
+    <v-app-bar  app color="#022a38" class="home-page-header" height="80" elevation="0">
+       
+            <v-img :src="isro" contain  max-width="100" max-height="60" class="ml-0" />
+            <v-img :src="iirslogo" contain  max-width="50" class="ml-0" />
             <v-spacer></v-spacer>
-            <v-col cols="auto" class="text-center">
-                <div class="header-text">
+            
+                <div class="header-text" >
                     <h3 class="mb-0">भारतीय अंतरिक्ष अनुसंधान संगठन, अंतरिक्ष विभाग</h3>
                     <h3 class="mb-0">Indian Space Research Organisation, Department of Space</h3>
                     <h3 class="mb-0">भारत सरकार / Government of India</h3>
                 </div>
-            </v-col>
+           
             <v-spacer></v-spacer>
-            <v-img :src="isro" class="hide" contain height="65px" max-width="80" />
-            <v-img :src="india" contain height="65px" max-width="140" class="mr-0" />
-        </v-row>
+           
+            <v-img :src="india" contain max-width="150" max-height="70" />
+        
     </v-app-bar>
     </template>
     
@@ -33,12 +33,12 @@
     <style scoped>
     .header-text {
         color: wheat;
-        line-height: 1.2;
+        line-height: 1.1;
+        margin-top: 5px;
         font-family: 'Poppins', sans-serif;
-        font-weight: 300;  
+        font-weight: 300; 
+        text-align: center; 
     }
-    .hide{
-        opacity: 0;
-    }
+  
     </style>
     
